@@ -1,12 +1,12 @@
 package org.example;
 
 import javax.swing.*;
-import Editor.TextEditor;
+import Editor.Herramientas;
 
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            TextEditor gui = new TextEditor();
+            Herramientas gui = new Herramientas();
             gui.setVisible(true);
         });
     }
