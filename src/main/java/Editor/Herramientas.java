@@ -17,6 +17,7 @@ public class Herramientas extends TextEditor {
     private GestorDeContactos gestorDeContactos;
     private JLabel mousePositionLabel;
     private JPanel statusBar;
+    private JLayeredPane layeredPane;
     private JTextArea textArea;
     private JScrollPane scrollPane;
     private DrawingArea drawingArea;
@@ -28,8 +29,14 @@ public class Herramientas extends TextEditor {
         statusBar = new JPanel(new BorderLayout());
         textArea = new JTextArea();
         scrollPane = new JScrollPane(textArea);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        layeredPane = new JLayeredPane();
+        layeredPane.setLayout(new BorderLayout());
+        layeredPane.add(scrollPane, BorderLayout.CENTER);
 
         JMenuBar menuBar = getJMenuBar();
 
@@ -37,17 +44,17 @@ public class Herramientas extends TextEditor {
         JMenuItem wordCountMenuItem = new JMenuItem("Word Count");
         JMenuItem textStatsMenuItem = new JMenuItem("Text Statistics");
         JMenuItem searchWordMenuItem = new JMenuItem("Search Word");
-        JMenuItem paintMenuItem = new JMenuItem("Paint");
+        JMenuItem drawingToolMenuItem = new JMenuItem("Drawing Tool");
 
         wordCountMenuItem.addActionListener(new WordCountAction());
         textStatsMenuItem.addActionListener(new TextStatsAction());
         searchWordMenuItem.addActionListener(new SearchWordAction());
-        paintMenuItem.addActionListener(new PaintAction());
+        drawingToolMenuItem.addActionListener(new DrawingToolAction());
 
         toolsMenu.add(wordCountMenuItem);
         toolsMenu.add(textStatsMenuItem);
         toolsMenu.add(searchWordMenuItem);
-        toolsMenu.add(paintMenuItem);
+        toolsMenu.add(drawingToolMenuItem);
         menuBar.add(toolsMenu);
 
         JMenu contactsMenu = new JMenu("Contacts");
@@ -82,19 +89,26 @@ public class Herramientas extends TextEditor {
         mousePositionLabel.setHorizontalAlignment(JLabel.RIGHT);
         statusBar.add(mousePositionLabel, BorderLayout.EAST);
 
-        textArea.addMouseMotionListener(new MouseMotionAdapter() {
+        textArea.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 mousePositionLabel.setText("Mouse Position: " + e.getX() + ", " + e.getY());
             }
         });
 
-        drawingArea = new DrawingArea();
-        drawingArea.setOpaque(false);
-        getContentPane().add(drawingArea, new Integer(1));
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (drawingArea != null) {
+                    drawingArea.clear();
+                }
+            }
+        });
+        statusBar.add(clearButton, BorderLayout.WEST);
 
         getContentPane().add(statusBar, BorderLayout.SOUTH);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        getContentPane().add(layeredPane, BorderLayout.CENTER);
     }
 
     public JPanel getStatusBar() {
@@ -239,53 +253,17 @@ public class Herramientas extends TextEditor {
         }
     }
 
-    private class PaintAction implements ActionListener {
+    private class DrawingToolAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            drawingArea.setVisible(!drawingArea.isVisible());
-        }
-    }
-}
-
-class DrawingArea extends JPanel {
-    private Image image;
-    private Graphics2D graphics2D;
-
-    public DrawingArea() {
-        setDoubleBuffered(false);
-        addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                draw(e.getX(), e.getY(), true);
+            if (drawingArea == null) {
+                drawingArea = new DrawingArea();
+                drawingArea.setPreferredSize(layeredPane.getSize());
+                layeredPane.add(drawingArea, BorderLayout.CENTER);
             }
-        });
-        addMouseMotionListener(new MouseAdapter() {
-            public void mouseDragged(MouseEvent e) {
-                draw(e.getX(), e.getY(), true);
-            }
-        });
-    }
-
-    protected void paintComponent(Graphics g) {
-        if (image == null) {
-            image = createImage(getSize().width, getSize().height);
-            graphics2D = (Graphics2D) image.getGraphics();
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            clear();
-        }
-        g.drawImage(image, 0, 0, null);
-    }
-
-    public void clear() {
-        graphics2D.setPaint(Color.white);
-        graphics2D.fillRect(0, 0, getSize().width, getSize().height);
-        graphics2D.setPaint(Color.black);
-        repaint();
-    }
-
-    private void draw(int x, int y, boolean pressed) {
-        if (pressed) {
-            graphics2D.fillOval(x, y, 4, 4);
-            repaint();
+            drawingArea.setVisible(true);
+            layeredPane.revalidate();
+            layeredPane.repaint();
         }
     }
 }
