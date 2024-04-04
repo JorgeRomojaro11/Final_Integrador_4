@@ -1,6 +1,8 @@
 package Editor;
 
 public class Contacto {
+    public static final String EMAIL_REGEX = "^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$";
+
     private String nombre;
     private String email;
     private String numeroDeTelefono;
@@ -33,5 +35,9 @@ public class Contacto {
 
     public void setNumeroDeTelefono(String numeroDeTelefono) {
         this.numeroDeTelefono = numeroDeTelefono;
+    }
+
+    public static boolean isValidEmail(String email) {
+        return email.matches(EMAIL_REGEX);
     }
 }
