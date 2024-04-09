@@ -49,7 +49,7 @@ public class Inicio extends JFrame {
         dialog.add(inputPanel, BorderLayout.SOUTH);
 
         dialog.pack();
-        dialog.setSize(800, 600); // Set the size of the dialog
+        dialog.setSize(800, 500); // Set the size of the dialog
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
 
